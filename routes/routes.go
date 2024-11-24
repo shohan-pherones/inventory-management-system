@@ -12,4 +12,5 @@ func RegisterRoutes(app *fiber.App) {
 	productGroup.Post("/", controllers.CreateProduct)
 	productGroup.Get("/", controllers.GetAllProducts)
 	productGroup.Get("/:id", controllers.GetProductByID)
+	productGroup.Put("/:id", controllers.UpdateProduct)
 }

@@ -103,3 +103,48 @@ func GetProductByID(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusOK).JSON(product)
 }
+
+func UpdateProduct(c *fiber.Ctx) error {
+	productID := c.Params("id")
+
+	objectID, err := primitive.ObjectIDFromHex(productID)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Invalid product ID format",
+		})
+	}
+
+	var updatedProduct models.Product
+
+	if err := c.BodyParser(&updatedProduct); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Unable to parse request body",
+		})
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	filter := bson.M{"_id": objectID}
+
+	update := bson.M{
+		"$set": bson.M{
+			"name":     updatedProduct.Name,
+			"quantity": updatedProduct.Quantity,
+			"price":    updatedProduct.Price,
+		},
+	}
+
+	collection := config.DB.Collection("products")
+
+	_, err = collection.UpdateOne(ctx, filter, update)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "Failed to update product",
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"message": "Product updated successfully",
+	})
+}

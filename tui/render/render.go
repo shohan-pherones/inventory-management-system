@@ -2,7 +2,7 @@ package render
 
 import (
 	"fmt"
-	"inventory-management-system/api"
+	"inventory-management-system/tui/api"
 
 	"github.com/gdamore/tcell/v2"
 	"github.com/rivo/tview"

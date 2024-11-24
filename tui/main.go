@@ -1,7 +1,7 @@
 package main
 
 import (
-	"inventory-management-system/render"
+	"inventory-management-system/tui/render"
 	"log"
 
 	"github.com/rivo/tview"

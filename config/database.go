@@ -1,22 +1,46 @@
 package config
 
 import (
+	"context"
 	"log"
+	"os"
+	"time"
 
-	"gorm.io/driver/sqlite"
-	"gorm.io/gorm"
+	"github.com/joho/godotenv"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-var DB *gorm.DB
+var DB *mongo.Database
 
-func ConnectDatabse() {
-	database, err := gorm.Open(sqlite.Open("inventory.db"), &gorm.Config{})
-
+func ConnectDatabase() {
+	err := godotenv.Load()
 	if err != nil {
-		log.Fatal("Failed to connect to the database: ", err)
+		log.Fatal("Error loading .env file")
 	}
 
-	DB = database
+	uri := os.Getenv("MONGO_URI")
+	dbName := os.Getenv("DATABASE_NAME")
 
-	log.Println("Database connection estiblished.")
+	if uri == "" || dbName == "" {
+		log.Fatal("MONGO_URI or DATABASE_NAME is not set in .env")
+	}
+
+	clientOptions := options.Client().ApplyURI(uri)
+
+	client, err := mongo.NewClient(clientOptions)
+	if err != nil {
+		log.Fatal("Failed to create MongoDB client:", err)
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	err = client.Connect(ctx)
+	if err != nil {
+		log.Fatal("Failed to connect to MongoDB:", err)
+	}
+
+	DB = client.Database(dbName)
+	log.Println("MongoDB connection established.")
 }

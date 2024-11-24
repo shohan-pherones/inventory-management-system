@@ -1,21 +1,20 @@
 package main
 
 import (
-	"github.com/shohan-pherones/inventory-management-system.git/config"
-	"github.com/shohan-pherones/inventory-management-system.git/routes"
+	"inventory-management-system/config"
+	"inventory-management-system/routes"
+	"log"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/logger"
 )
 
 func main() {
+	config.ConnectDatabase()
+
 	app := fiber.New()
-
-	app.Use(logger.New())
-
-	config.ConnectDatabse()
 
 	routes.RegisterRoutes(app)
 
-	app.Listen(":4000")
+	log.Println("Server is running on http://127.0.0.1:4000")
+	log.Fatal(app.Listen(":4000"))
 }

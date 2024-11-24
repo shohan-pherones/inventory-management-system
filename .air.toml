@@ -1,0 +1,10 @@
+root = "."
+
+[build]
+  cmd = "go run main.go"
+  bin = "tmp/main"
+  include = ["."]
+  exclude = ["assets", "tmp", "node_modules", ".git"]
+
+[watch]
+  delay = "100ms"

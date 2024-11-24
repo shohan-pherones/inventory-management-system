@@ -77,3 +77,29 @@ func GetAllProducts(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusOK).JSON(products)
 }
+
+func GetProductByID(c *fiber.Ctx) error {
+	productID := c.Params("id")
+
+	objectID, err := primitive.ObjectIDFromHex(productID)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Invalid product ID format",
+		})
+	}
+
+	collection := config.DB.Collection("products")
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	var product models.Product
+	err = collection.FindOne(ctx, bson.M{"_id": objectID}).Decode(&product)
+	if err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+			"error": "Product not found",
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(product)
+}

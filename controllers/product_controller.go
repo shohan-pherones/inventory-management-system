@@ -148,3 +148,32 @@ func UpdateProduct(c *fiber.Ctx) error {
 		"message": "Product updated successfully",
 	})
 }
+
+func DeleteProduct(c *fiber.Ctx) error {
+	productID := c.Params("id")
+
+	objectID, err := primitive.ObjectIDFromHex(productID)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Invalid product ID format",
+		})
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	collection := config.DB.Collection("products")
+
+	filter := bson.M{"_id": objectID}
+
+	_, err = collection.DeleteOne(ctx, filter)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "Failed to delete product",
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"message": "Product deleted successfully",
+	})
+}

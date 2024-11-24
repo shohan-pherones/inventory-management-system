@@ -13,4 +13,5 @@ func RegisterRoutes(app *fiber.App) {
 	productGroup.Get("/", controllers.GetAllProducts)
 	productGroup.Get("/:id", controllers.GetProductByID)
 	productGroup.Put("/:id", controllers.UpdateProduct)
+	productGroup.Delete("/:id", controllers.DeleteProduct)
 }
